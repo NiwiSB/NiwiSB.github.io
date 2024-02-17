@@ -1,250 +1,75 @@
-# Retype GitHub Pages Action
+<header>
 
-A GitHub Action to push a website built by [Retype](https://retype.com/) in a previous [`action-build`](https://github.com/retypeapp/action-build) step back to the GitHub repo where it can then be hosted by [GitHub Pages](https://docs.github.com/en/github/working-with-github-pages/getting-started-with-github-pages).
+<!--
+  <<< Author notes: Course header >>>
+  Include a 1280×640 image, course title in sentence case, and a concise description in emphasis.
+  In your repository settings: enable template repository, add your 1280×640 social image, auto delete head branches.
+  Add your open source license, GitHub uses MIT license.
+-->
 
-This action includes options to push to a `branch`, or a `directory`, or automatically create a pull request which can then be reviewed and merged.
+# GitHub Pages
 
-## Introduction
+_Create a site or blog from your GitHub repositories with GitHub Pages._
 
-This action will commit and push back a Retype website to a GitHub repo. The website will have been built during a previous step by using the [retypeapp/action-build](https://github.com/retypeapp/action-build) action.
+</header>
 
-The following functionality is configurable by this action:
+<!--
+  <<< Author notes: Course start >>>
+  Include start button, a note about Actions minutes,
+  and tell the learner why they should take the course.
+-->
 
-1. Target a `branch`, or
-2. Target a `directory` in the repo
-3. Configure whether a new branch should be created if it already exists (`update-branch`)
-4. Configure a GitHub API access token to allow the action to make a Pull Request (`github-token`)
+## Welcome
 
-## Prerequisites
+With GitHub Pages, you can host project blogs, documentation, resumes, portfolios, or any other static content you'd like. Your GitHub repository can easily become its own website. In this course, we'll show you how to set up your own site or blog using GitHub Pages.
 
-This action requires the output of the [retypeapp/action-build](https://github.com/retypeapp/action-build) in a previous step of the workflow.
+- **Who is this for**: Beginners, students, project maintainers, small businesses.
+- **What you'll learn**: How to build a GitHub Pages site.
+- **What you'll build**: We'll build a simple GitHub Pages site with a blog. We'll use [Jekyll](https://jekyllrb.com), a static site generator.
+- **Prerequisites**: If you need to learn about branches, commits, and pull requests, take [Introduction to GitHub](https://github.com/skills/introduction-to-github) first.
+- **How long**: This course takes less than one hour to complete.
 
-Please see [Getting Started with GitHub Pages](https://docs.github.com/en/github/working-with-github-pages/getting-started-with-github-pages) for details on how to configure GitHub Pages.
+In this course, you will:
 
-## Usage
+1. Enable GitHub Pages
+2. Configure your site
+3. Customize your home page
+4. Create a blog post
+5. Merge your pull request
 
-The following `retype.yaml` file demonstrates a typical scenario where the action will trigger Retype to build when changes are pushed to the repo. The fresh Retype powered website is then pushed to a `retype` branch which has been setup in the repo settings to host with GitHub Pages.
+### How to start this course
 
-```yaml
-name: Publish Retype powered website to GitHub Pages
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+<!-- For start course, run in JavaScript:
+'https://github.com/new?' + new URLSearchParams({
+  template_owner: 'skills',
+  template_name: 'github-pages',
+  owner: '@me',
+  name: 'skills-github-pages',
+  description: 'My clone repository',
+  visibility: 'public',
+}).toString()
+-->
 
-jobs:
-  publish:
-    name: Publish to retype branch
+[![start-course](https://user-images.githubusercontent.com/1221423/235727646-4a590299-ffe5-480d-8cd5-8194ea184546.svg)](https://github.com/new?template_owner=skills&template_name=github-pages&owner=%40me&name=skills-github-pages&description=My+clone+repository&visibility=public)
 
-    runs-on: ubuntu-latest
+1. Right-click **Start course** and open the link in a new tab.
+2. In the new tab, most of the prompts will automatically fill in for you.
+   - For owner, choose your personal account or an organization to host the repository.
+   - We recommend creating a public repository, as private repositories will [use Actions minutes](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions).
+   - Scroll down and click the **Create repository** button at the bottom of the form.
+3. After your new repository is created, wait about 20 seconds, then refresh the page. Follow the step-by-step instructions in the new repository's README.
 
-    permissions:
-      contents: write
+<footer>
 
-    steps:
-      - uses: actions/checkout@v2
+<!--
+  <<< Author notes: Footer >>>
+  Add a link to get support, GitHub status page, code of conduct, license link.
+-->
 
-      - uses: retypeapp/action-build@latest
+---
 
-      - uses: retypeapp/action-github-pages@latest
-        with:
-          update-branch: true
-```
+Get help: [Post in our discussion board](https://github.com/orgs/skills/discussions/categories/github-pages) &bull; [Review the GitHub status page](https://www.githubstatus.com/)
 
-## Inputs
+&copy; 2023 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
 
-### `branch`
-
-Specifies the target branch where the Retype output will be merged.
-
-- **Default:** `retype`
-- **Accepts:** A string or the `HEAD` keyword. Examples: `gh-pages`, `main`, `website`, `HEAD`
-
-- **If the branch does not exist**: The action will create a new, orphan branch; then copy over the files, commit, and push.
-- **If the branch exists:**
-  - **And `update-branch` input is not `true`:** The action will fork from that branch into a new uniquely-named branch. The action will then wipe clean the entire branch (or a subdirectory within that branch), then copy over the Retype output files, then commit and push. This branch can then be merged or be used to make a pull request to the target branch. This action can create the pull request, see `github-token` input below.
-  - **The `update-branch` input is `true`:** The action will wipe clean the branch (or directory), then copy over the Retype output, commit, and then push to the target branch.
-- **The argument is `HEAD` keyword:** `update-branch` is implied `true` and Retype output files will be committed to the current branch. In this scenario, the action will ONLY run if a `directory` has been configured, as it would otherwise result in the replacement of all branch contents with the Retype output.
-
-When wiping a branch or directory, if there is a `CNAME` file in the target directory root, the existing `CNAME` file will be preserved.
-
-If the [`cname`](https://retype.com/configuration/project/) property is configured within your projects `retype.json` file, the `CNAME` file from the Retype build output will be used.
-
-See [Managing a custom domain for your GitHub Pages site](https://docs.github.com/en/github/working-with-github-pages/managing-a-custom-domain-for-your-github-pages-site) for additional details regarding `CNAME` files and configuring a custom domain or sub-domain for web hosting.
-
-If the `HEAD` keyword is used and `.`, `/`, or any path coinciding with the repository root is specified to `directory` input, then the whole repository data will be replaced with the generated documentation. Likewise, if the path passed as input conflicts with any existing path within the repository, it will be wiped clean by the commit, replaced recursively by only the Retype output.
-
-### `directory`
-
-Specifies the root where to place the Retype output files. The path is relative to the repository.
-
-- **Default:** null (root of the repository)
-- **Accepts:** A string. Example: `docs`
-
-Using `/` or `.` is equivalent to not specifying an input, as it will be changing to the `.//` and `./.` directories respectively. Use of upper-level directories (`../`) is accepted but may result in files being copied outside the repository, in which case the action might fail due to being outside the repository boundaries.
-
-### `update-branch`
-
-Indicates whether the action should update the target branch instead of creating a unique named branch.
-
-- **Default:** null
-- **Accepts:** `true` or `false`
-
-When this option is configured, no pull request will be attempted even if `github-token` is specified.
-
-When `branch: HEAD` input is specified, this setting is assumed `true` as there will not be a reference to fork off (or pull request to) as `HEAD` is not a valid branch name.
-
-### `github-token`
-
-Specifies a GitHub Access Token that enables the action to make a pull request whenever it pushes a new branch forked from the existing target branch. See [Using the GITHUB_TOKEN in a workflow](https://docs.github.com/en/actions/reference/authentication-in-a-workflow#using-the-github_token-in-a-workflow) and [Creating a personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)for more details.
-
-- **Default:** null
-- **Accepts:** A string representing a valid GitHub Access Token either for User, Repository, or Action.
-
-The action will never use the access token if (1) the branch does not exist, (2) `update-branch` is configured, or (3) if `branch: HEAD` is specified.
-
-## Examples
-
-The following `retype.yaml` workflow file will serve as our starting template for most of the samples below.
-
-```yaml
-name: Publish Retype powered website to GitHub Pages
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-
-jobs:
-  publish:
-    name: Publish to retype branch
-
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: retypeapp/action-build@latest
-
-      - uses: retypeapp/action-github-pages@latest
-        with:
-          update-branch: true
-```
-
-The `retypeapp/action-build` is a required step before running the `retypeapp/action-github-pages` action.
-
-### Most common setup
-
-```yaml
-- uses: retypeapp/action-github-pages@latest
-  with:
-    branch: retype
-    update-branch: true
-```
-
-### Push to a custom branch and use the action's own GitHub Token to create a pull request
-
-In this example we will push to a `gh-pages` branch and allow the action to use its own access token to create the pull request whenever the branch exists.
-
-```yaml
-- uses: retypeapp/action-github-pages@latest
-  with:
-    branch: gh-pages
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-```
-
-#### Rules:
-
-- **Target branch:** `gh-pages`
-- **Root directory in branch:** Branch root directory
-- **If branch exists:** Fork off `gh-pages` to a branch called `gh-pages-<github.run_id>-<github.run_number>`,
-- **Pull request policy:** if it forked off the target branch, then make a pull request from `gh-pages-<github.run_id>-<github.run_number>` into `gh-pages`
-
-Regarding pull requests, the first time the action runs will probably be the only time a new `gh-pages` branch will be pushed. Starting from the second time and onwards, the branch already exist and a pull request would be created by the action.
-
-GitHub Pages is not automatically configured by the action pushing to the `gh-pages` branch. GitHub Pages must be manually enabled and configured from the repository settings. Please see [Configuring a publishing source for your GitHub Pages site](https://docs.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site) for more details.
-
-### Send to `main` branch within `docs` folder
-
-This example assumes GitHub Pages was configured to serve pages from the `docs` folder from within the root of the `main`.
-
-```yaml
-- uses: retypeapp/action-github-pages@latest
-  with:
-    branch: main
-    directory: docs
-```
-
-#### Rules:
-
-- **Target branch:** `main`
-- **Root directory in branch:** Branch root directory
-- **If branch exists:** Fork off `main` to a branch called `main-<github.run_id>-<github.run_number>`,
-- **Pull request policy:** Given the `main` branch always exist, it will always make a pull request from `main--<github.run_id>-<github.run_number>` into `main` when triggered
-
-In this context, one would probably prefer that the action to be triggered on pushes/merges to the `main` branch only, thus the action file would rather be configured like the following:
-
-```yaml
-name: GitHub Action for Retype
-on:
-  push:
-    branches:
-      - main
-jobs:
-  job1:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: retypeapp/action-build@latest
-
-      - uses: retypeapp/action-github-pages@latest
-        with:
-          branch: main
-          directory: docs
-```
-
-In this case, if the `branch: HEAD` argument is used, although it would always push to `main` as intended, it would always update the branch directly instead of making a pull request.
-
-### Update GitHub Pages on new release
-
-In the following sample, we configure that whenever a new Release is created in the GitHub repo, update the documentation to the `retype` branch. If GitHub Pages has been configured to host from the `retype` branch, within a few moments the live website will be updated.
-
-```yaml
-name: Publish Retype powered website on a new release
-on:
-  release:
-    types: [ published ]
-
-jobs:
-  publish:
-    name: Assemble and publish docs
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: retypeapp/action-build@latest
-
-      - uses: retypeapp/action-github-pages@latest
-        with:
-          branch: retype
-          update-branch: true
-```
-
-#### Rules:
-
-- **Target branch:** `retype`
-- **Root directory in branch:** Branch root directory
-- **If branch exists:** Make changes directly to the branch
-- **Pull request policy:** Never create a pull request and will push branch with modifications directly to GitHub
-
-See [Managing Releases in a Repository](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository) for additional details.
+</footer>
